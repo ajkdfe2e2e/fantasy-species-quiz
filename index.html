@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奇幻物种测定仪 - 你是什么神秘生物？</title>
+    <meta name="description" content="通过10个有趣的问题，发现你的奇幻物种本质！">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #a78bfa;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --dark: #0f172a;
+            --darker: #020617;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 动态星空背景 */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .emoji-large {
+            font-size: 4em;
+            text-align: center;
+            margin: 20px 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        button {
+            width: 100%;
+            padding: 16px 32px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .question-number {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            color: white;
+            font-size: 1.3em;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 16px 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-size: 1em;
+        }
+
+        .option:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateX(5px);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 16px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.6);
+        }
+
+        .result-container {
+            text-align: center;
+        }
+
+        .result-emoji {
+            font-size: 6em;
+            margin: 20px 0;
+            animation: scaleIn 0.6s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .result-title {
+            color: white;
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .result-description {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 1.05em;
+        }
+
+        .result-traits {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .trait {
+            color: white;
+            margin: 10px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .trait:before {
+            content: "✨";
+            position: absolute;
+            left: 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            flex: 1;
+        }
+
+        .button-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .emoji-large {
+                font-size: 3em;
+            }
+
+            .result-emoji {
+                font-size: 4em;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 星空粒子背景 -->
+    <div id="particles"></div>
+
+    <div class="container">
+        <!-- 开始页面 -->
+        <div id="start-screen" class="card">
+            <h1>🔮 奇幻物种测定仪</h1>
+            <div class="emoji-large">🐉🧚🦄</div>
+            <p class="subtitle">
+                在这个世界的另一面，存在着神秘的奇幻生物...<br>
+                回答10个问题，发现你隐藏的物种本质！
+            </p>
+            <button onclick="startQuiz()">开始探索 ✨</button>
+        </div>
+
+        <!-- 问题页面 -->
+        <div id="quiz-screen" class="card hidden">
+            <div class="progress-bar">
+                <div id="progress" class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="question-number" id="question-number">问题 1/10</div>
+            <div class="question-text" id="question-text"></div>
+            <div class="options" id="options"></div>
+        </div>
+
+        <!-- 结果页面 -->
+        <div id="result-screen" class="card hidden">
+            <div class="result-container">
+                <div class="result-emoji" id="result-emoji"></div>
+                <h2 class="result-title" id="result-title"></h2>
+                <p class="result-description" id="result-description"></p>
+                <div class="result-traits" id="result-traits"></div>
+                <div class="button-group">
+                    <button class="button-secondary" onclick="copyResult()">📋 复制结果</button>
+                    <button onclick="restartQuiz()">🔄 重新测试</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 物种数据
+        const species = {
+            dragon: {
+                emoji: '🐉',
+                name: '龙族',
+                description: '你是天空的霸主，拥有无与伦比的力量与智慧。你高傲而强大，守护着珍贵的宝藏,同时也守护着你所爱的人。你的存在本身就是传说。',
+                traits: ['强大的领导力', '保护欲强', '智慧深邃', '略显高傲但忠诚']
+            },
+            elf: {
+                emoji: '🧝',
+                name: '精灵',
+                description: '你是森林的守护者，优雅而神秘。你与自然和谐共存，拥有敏锐的感知力和艺术天赋。你的生命悠长，见证了太多美好与悲伤。',
+                traits: ['优雅从容', '艺术气息浓厚', '与自然共鸣', '智慧而谨慎']
+            },
+            vampire: {
+                emoji: '🧛',
+                name: '吸血鬼',
+                description: '你是夜晚的贵族，神秘而迷人。你拥有永恒的生命和独特的魅力，在黑暗中找到了属于自己的优雅。你是孤独的，但也是自由的。',
+                traits: ['神秘莫测', '魅力非凡', '独立自主', '夜行性格']
+            },
+            phoenix: {
+                emoji: '🔥',
+                name: '凤凰',
+                description: '你是重生的象征，从灰烬中涅槃。无论经历多少挫折，你总能浴火重生，变得更加强大。你的存在给他人带来希望与勇气。',
+                traits: ['坚韧不拔', '充满希望', '勇于改变', '激励他人']
+            },
+            unicorn: {
+                emoji: '🦄',
+                name: '独角兽',
+                description: '你是纯洁与美好的化身，拥有治愈他人的力量。你善良、温柔、富有同情心，总是相信世界的美好。你的存在让周围的一切都变得温暖。',
+                traits: ['纯真善良', '治愈能力', '富有同情心', '相信美好']
+            },
+            mermaid: {
+                emoji: '🧜',
+                name: '美人鱼',
+                description: '你是深海的歌者，自由而梦幻。你拥有动人的歌喉和神秘的魅力，在水与月光之间游弋。你向往自由，也渴望被理解。',
+                traits: ['自由奔放', '艺术天赋', '神秘浪漫', '情感丰富']
+            },
+            werewolf: {
+                emoji: '🐺',
+                name: '狼人',
+                description: '你是野性与理性的结合体，拥有强大的本能和忠诚的心。你重视家族与伙伴，在月圆之夜展现真正的力量。你是守护者，也是战士。',
+                traits: ['忠诚可靠', '野性力量', '保护意识强', '团队精神']
+            },
+            fairy: {
+                emoji: '🧚',
+                name: '仙灵',
+                description: '你是魔法的精灵，活泼而调皮。你拥有纯真的快乐和无限的创造力，总能在平凡中发现魔法。你的存在让世界充满惊喜与欢笑。',
+                traits: ['活泼开朗', '富有创造力', '纯真快乐', '充满魔力']
+            },
+            hajimi: {
+                emoji: '🐱',
+                name: '哈吉米',
+                description: '你是神秘而优雅的喵星人，慵懒中透着高贵，傲娇中藏着温柔。你独立自主却也渴望陪伴，表面高冷实则内心柔软。你用喵喵叫征服世界，用肉垫治愈人心。',
+                traits: ['慵懒优雅', '傲娇可爱', '独立又粘人', '神秘莫测的魅力']
+            }
+        };
+
+        // 问题数据
+        const questions = [
+            {
+                question: '🌅 当第一缕晨光洒在你的脸上，你最想做什么？',
+                options: [
+                    { text: '站在高处俯瞰大地，计划今天的征服', species: 'dragon' },
+                    { text: '在森林中漫步，感受大自然的呼吸', species: 'elf' },
+                    { text: '拉上窗帘继续睡觉，夜晚才是我的主场', species: 'vampire' },
+                    { text: '伸个懒腰，找个阳光最舒服的地方继续躺平', species: 'hajimi' }
+                ]
+            },
+            {
+                question: '🎭 在朋友聚会中，你通常扮演什么角色？',
+                options: [
+                    { text: '领导者，组织大家的活动', species: 'dragon' },
+                    { text: '倾听者，默默关心每个人', species: 'unicorn' },
+                    { text: '开心果，制造欢笑与惊喜', species: 'fairy' },
+                    { text: '观察者，高冷旁观但偶尔卖萌', species: 'hajimi' }
+                ]
+            },
+            {
+                question: '💎 如果获得一件魔法宝物，你希望它能做什么？',
+                options: [
+                    { text: '增强力量，让我变得更强大', species: 'dragon' },
+                    { text: '与动植物交流，理解万物', species: 'elf' },
+                    { text: '控制时间，在永恒中游走', species: 'vampire' },
+                    { text: '能变出无限的小鱼干和舒适的躺窝', species: 'hajimi' }
+                ]
+            },
+            {
+                question: '🌙 夜深人静时，你在想些什么？',
+                options: [
+                    { text: '反思过去，从错误中成长', species: 'phoenix' },
+                    { text: '沉浸在艺术与美的世界里', species: 'mermaid' },
+                    { text: '享受夜晚的宁静与自由', species: 'vampire' },
+                    { text: '在家里巡视领地，顺便偷吃点零食', species: 'hajimi' }
+                ]
+            },
+            {
+                question: '🎨 你最喜欢的艺术形式是？',
+                options: [
+                    { text: '史诗般的交响乐，宏大而震撼', species: 'dragon' },
+                    { text: '悠扬的竖琴曲，清新而优雅', species: 'elf' },
+                    { text: '神秘的歌剧，戏剧而深沉', species: 'vampire' },
+                    { text: '呼噜呼噜的打呼声配合踩奶的节奏', species: 'hajimi' }
+                ]
+            },
+            {
+                question: '⚔️ 面对挑战时，你的第一反应是？',
+                options: [
+                    { text: '正面迎击，用实力解决问题', species: 'dragon' },
+                    { text: '冷静分析，寻找最优解', species: 'elf' },
+                    { text: '越挫越勇，绝不放弃', species: 'phoenix' },
+                    { text: '先观察，实在不行就装可爱逃避', species: 'hajimi' }
+                ]
+            },
+            {
+                question: '🌸 你最向往的生活环境是？',
+                options: [
+                    { text: '高山之巅，俯瞰万物', species: 'dragon' },
+                    { text: '古老森林，与自然为伴', species: 'elf' },
+                    { text: '神秘古堡，在黑暗中优雅', species: 'vampire' },
+                    { text: '温暖的家，有猫窝、猫爬架和铲屎官', species: 'hajimi' }
+                ]
+            },
+            {
+                question: '💫 你认为生命中最重要的是？',
+                options: [
+                    { text: '力量与荣耀', species: 'dragon' },
+                    { text: '美与和谐', species: 'elf' },
+                    { text: '真相与永恒', species: 'vampire' },
+                    { text: '舒适与自由（还有好吃的）', species: 'hajimi' }
+                ]
+            },
+            {
+                question: '🎪 如果能拥有一项超能力，你希望是？',
+                options: [
+                    { text: '飞行，在天空自由翱翔', species: 'phoenix' },
+                    { text: '隐身，观察世界的真相', species: 'vampire' },
+                    { text: '变形，体验不同的生命', species: 'werewolf' },
+                    { text: '永远不会被发现偷吃东西', species: 'hajimi' }
+                ]
+            },
+            {
+                question: '🌟 你希望别人如何记住你？',
+                options: [
+                    { text: '传奇般的强者', species: 'dragon' },
+                    { text: '智慧的引导者', species: 'elf' },
+                    { text: '永不放弃的战士', species: 'phoenix' },
+                    { text: '那只可爱又迷人的小祖宗', species: 'hajimi' }
+                ]
+            }
+        ];
+
+        let currentQuestion = 0;
+        let answers = {};
+
+        // 初始化星空
+        function initParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // 开始测试
+        function startQuiz() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            showQuestion();
+        }
+
+        // 显示问题
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('question-number').textContent = `问题 ${currentQuestion + 1}/10`;
+            document.getElementById('question-text').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option';
+                button.textContent = option.text;
+                button.onclick = () => selectAnswer(option.species);
+                optionsContainer.appendChild(button);
+                
+                // 添加渐入动画
+                setTimeout(() => {
+                    button.style.animation = 'fadeIn 0.5s ease-in';
+                }, index * 100);
+            });
+
+            // 更新进度条
+            const progress = ((currentQuestion) / 10) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        // 选择答案
+        function selectAnswer(speciesKey) {
+            answers[speciesKey] = (answers[speciesKey] || 0) + 1;
+            currentQuestion++;
+
+            if (currentQuestion < 10) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        // 显示结果
+        function showResult() {
+            // 计算得分最高的物种
+            let maxScore = 0;
+            let resultSpecies = 'dragon';
+            
+            for (let key in answers) {
+                if (answers[key] > maxScore) {
+                    maxScore = answers[key];
+                    resultSpecies = key;
+                }
+            }
+
+            const result = species[resultSpecies];
+
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            document.getElementById('result-emoji').textContent = result.emoji;
+            document.getElementById('result-title').textContent = `你是：${result.name}`;
+            document.getElementById('result-description').textContent = result.description;
+
+            const traitsContainer = document.getElementById('result-traits');
+            traitsContainer.innerHTML = '<h3 style="color: white; margin-bottom: 15px;">✨ 你的特质</h3>';
+            result.traits.forEach(trait => {
+                const div = document.createElement('div');
+                div.className = 'trait';
+                div.textContent = trait;
+                traitsContainer.appendChild(div);
+            });
+        }
+
+        // 复制结果
+        function copyResult() {
+            const emoji = document.getElementById('result-emoji').textContent;
+            const title = document.getElementById('result-title').textContent;
+            const description = document.getElementById('result-description').textContent;
+            const text = `${emoji} ${title}\n\n${description}\n\n我在"奇幻物种测定仪"测出了我的结果！你也来试试吧！`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✨ 结果已复制到剪贴板！');
+            });
+        }
+
+        // 重新开始
+        function restartQuiz() {
+            currentQuestion = 0;
+            answers = {};
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+
+        // 页面加载时初始化
+        window.onload = initParticles;
+    </script>
+</body>
+</html>
